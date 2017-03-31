@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)http://www.jollywallet.com/tlb/v4/jw_combo_storage_iframe.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<meta name="language" content="en">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<script type="text/javascript" src="./jquery.min.js(1).descarga"></script>
+	<script type="text/javascript" src="./common.js.descarga"></script>
+	<script type="text/javascript" src="./public.js.descarga"></script>
+</head>
+<body style="margin:0px;">
+
+
+
+<script>
+var jw_domain = "";
+$(document).ready(function(){
+	try{	
+		jw_domain = getDomain(document.domain);
+		var x = localStorage.getItem('jw_combo_x');
+		var y = localStorage.getItem('jw_combo_y');
+		var pos = localStorage.getItem('jw_combo_pos');
+		if (!x || !y || !pos) {
+			x = 0;
+			y = 60;
+			pos = 'left';
+		}
+		localStorage.setItem('jw_combo_x', x);
+		localStorage.setItem('jw_combo_y', y);
+		localStorage.setItem('jw_combo_pos', pos);
+		var msg = {"msg":"jw_combo_initial_widget_position", "x":x, "y":y, "pos":pos};
+		parent.postMessage(msg, "*");
+		
+		window.addEventListener('message', function(e) {
+			if ((typeof e.data)!='object') return;
+            var obx = e.data;
+            if (obx.msg=='jw_save_jw_combo_key_position'){
+				var x = obx.x;
+				var y = obx.y;
+				var pos = obx.pos;
+				if (typeof x==='undefined' || typeof y==='undefined' || typeof pos==='undefined')return;
+				localStorage.setItem('jw_combo_x', x); 
+				localStorage.setItem('jw_combo_y', y);
+				localStorage.setItem('jw_combo_pos', pos);
+            }
+		});
+	}catch(ex){
+		console.log('JW Error 14427: '+ex.message);
+	}
+});
+
+</script>
+			<div id="jwMsgDlg" style="display:none;overflow:hidden;min-height:105px !important;">				<div id="jwMsgDlgContent" style="padding-top:10px;overflow:hidden;"></div>				<div style="margin-top:30px;position:relative;">					<div id="jwMsgDlgCloseBtn" class="btn_base btn_129_35 allowHover unselectable" style="position:static !important;float:right !important;">OK</div>					<div id="jwMsgDlgCounterDiv" class="f12" style="position:absolute;left:5px;bottom:5px;font-weight:normal;"></div>					<div style="clear:both;"></div>				</div>			</div></body></html>

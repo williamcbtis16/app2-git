@@ -1,0 +1,1050 @@
+// default number of lines displayed by the datatable grid
+var _default_iDisplayLength = 100;
+
+//default behavior of dialogs in the app
+var DlgSettings = {
+	show: 'blind',
+	hide: 'blind',
+	isModal: true,
+	isDraggable: true,
+	isResizable: false
+};
+
+var ERROR = {
+	NO_ERROR					:0,
+	GENERAL						:1,
+	UNEXPECTED_REQUEST_TYPE		:2,
+	GENERAL_DB					:5,
+	JSON_FORMAT					:6,
+	GENERAL_EMAIL				:7,
+	PERMISSION_UNKNOWNUSER		:100,
+	PERMISSION_NO_OPEN_SESSION  :101,
+    PERMISSION_DENIED			:102,
+    CAPTCHA_ERROR               :103,
+    SESSION_EXPIRED 			:106,
+    API_UNEXPECTED_REQUEST		:200,
+    UNEXPECTED_USER_DATA		:400,
+    EMPTY						:1000,
+    TOO_SHORT					:1001,
+    TOO_LONG					:1002
+};
+
+//example: 'The {0} is dead. Don\'t code {0}. Code {1} that is open source!'.jw_format('ASP', 'PHP');
+//from: http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+String.prototype.jw_format = function() {
+	var formatted = this;
+	for (var i = 0; i < arguments.length; i++) {
+	    var regexp = new RegExp('\\{'+i+'\\}', 'gi');
+	    formatted = formatted.replace(regexp, arguments[i]);
+	}
+	return formatted;
+};
+
+//izk: expand to check for email, url, etc
+function StrChecker(str, settings) {
+	if (str == null) return ERROR.EMPTY;
+	if (str == undefined) return ERROR.EMPTY;
+	if (str.length < 1) return ERROR.EMPTY;
+	if (str.length < settings.minlen) return ERROR.TOO_SHORT;
+	if (str.length > settings.maxlen) return ERROR.TOO_LONG;
+	return ERROR.NO_ERROR;
+}
+
+//izk: to finish. unify with StrChecker()
+//when have time look at http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+function IsValidEmail(email) {
+	if (email == null) return false;
+	if (email == undefined) return false;
+	if (email.length < 'a@a.com'.length) return false;
+	filter = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return (filter.test(email));
+}
+
+function IsValidTel(tel_num) { //colmpete checks!!!!!!!!!!!!!!!!
+	if (tel_num == null) return false;
+	if (tel_num == undefined) return false;
+	if (tel_num.length < 7) return false;
+	//filter = /^()$/;
+	return true;(filter.test(email));
+}
+
+
+//trim field value, set the trimmed val into the field and return the value
+function GetVal(id) {
+	try {
+		var pid = "#" + id;
+		var val = $.trim($(pid).val());
+		$(pid).val(val);
+		return val;
+	} catch (ex) {
+		alert("GetVal ex: "+ex.message);
+		return '';
+	}
+}
+
+//id field may be #id, .cls, or just id without #
+function SetBubble(id, text, theme) {
+	//todo: fix the width
+	var tLen = text.length;
+	var bWidth = 375;
+	if( tLen < 150 )
+		bWidth = 250;
+	//text = '['+String(tLen)+'] '+text;
+	
+	var iz = id;
+	if (id.substr(0,1)!='#' && id.substr(0,1)!='.') iz = '#'+id;
+
+	$(iz).CreateBubblePopup({
+		position : 'top',
+		align	 : 'center',
+		width	 : bWidth,
+		innerHtml: text,
+		innerHtmlStyle: {
+			color:'#FFFFFF', 
+			'text-align':'left',
+			'z-index': '999999'
+		},
+		themeName: 	theme || 'all-orange',
+		themePath: 	_static_path+'/resources/images/jquerybubblepopup-theme'
+	});
+};
+
+function SetBubbleExtended(id, text, position, align, tail, theme) {
+	//todo: fix the width
+	var tLen = text.length;
+	var bWidth = 375;
+	if( tLen < 150 )
+		bWidth = 250;
+	//text = '['+String(tLen)+'] '+text;
+	$('#' + id).CreateBubblePopup({
+		position : position,
+		align	 : align,
+		tail	 : {align: tail},
+		width	 : bWidth,
+		innerHtml: text,
+		innerHtmlStyle: {
+			color:'#FFFFFF', 
+			'text-align':'left',
+			'z-index': '999999'
+		},
+		themeName: 	theme || 'all-orange',
+		themePath: 	_static_path+'/resources/images/jquerybubblepopup-theme'
+	});
+}
+
+function SetBubbleExtended_by_class(cls, text, position, align, tail, theme) {
+	//todo: fix the width
+	var tLen = text.length;
+	var bWidth = 375;
+	if( tLen < 150 )
+		bWidth = 250;
+	//text = '['+String(tLen)+'] '+text;
+	$('.' + cls).CreateBubblePopup({
+		position : position,
+		align	 : align,
+		tail	 : {align: tail},
+		width	 : bWidth,
+		innerHtml: text,
+		innerHtmlStyle: {
+			color:'#FFFFFF', 
+			'text-align':'left',
+			'z-index': '999999'
+		},
+		themeName: 	theme || 'all-orange',
+		themePath: 	_static_path+'/resources/images/jquerybubblepopup-theme'
+	});
+}
+
+//function SetBubbleForHotDeal(id, text, position, counter) {	
+//	var align;
+//	switch(i % 3) {
+//		case 0:
+//			align = 'left';
+//			break;
+//		case 1:
+//			align = 'center';
+//			break;
+//		default:
+//			align= 'right';
+//	}
+//	
+//	(function($) {
+//		$('#' + id).CreateBubblePopup();
+//		$('#' + id).SetBubblePopupOptions({
+//			position : 'top',
+//			align	 : align,
+//			tail	 : {align: align},
+//			width	 : 270,
+//			innerHtml: text,
+//			innerHtmlStyle: {
+//				color:'#FFFFFF', 
+//				'text-align':'left',
+//				'z-index': '10000'
+//			},
+//			themeName: 	'all-orange',
+//			themePath: 	_static_path+'/resources/images/jquerybubblepopup-theme'
+//		});
+//	});	
+//}
+
+
+/* ************************************************************************************ */
+/* dialog message and form messages functions - START									*/
+/* ************************************************************************************ */
+
+//change the default OK button text by attaching it to the dlg like this b4 open: 
+//$("#jwMsgDlg").data('button_text', 'Close');	
+//$("#jwMsgDlg").data('add_cancel_btn', 'No');	
+function append_jwMsgDlg() {
+	try	{
+		var msg_dlg = '\
+			<div id="jwMsgDlg" style="display:none;overflow:hidden;min-height:105px !important;">\
+				<div id="jwMsgDlgContent" style="padding-top:10px;overflow:hidden;"></div>\
+				<div style="margin-top:30px;position:relative;">\
+					<div id="jwMsgDlgCloseBtn" class="btn_base btn_129_35 allowHover unselectable" style="position:static !important;float:right !important;">OK</div>\
+					<div id="jwMsgDlgCounterDiv" class="f12" style="position:absolute;left:5px;bottom:5px;font-weight:normal;"></div>\
+					<div style="clear:both;"></div>\
+				</div>\
+			</div>';
+		$('body').append(msg_dlg);
+		
+		var pos_obj = {my:'top', at:'top+100px'};
+		if (jQuery().jquery=='1.7.1') pos_obj = {};
+		
+		$("#jwMsgDlg").dialog({
+			create: function(event, ui){ 
+				$(this).parents(".ui-dialog:first").find(".ui-widget-header").hide();
+				$(this).parents(".ui-dialog").css('max-width','400px');
+			},
+			open: function(event, ui){
+				var button_text = $(this).data('button_text');
+				if (button_text==undefined)
+					button_text = 'OK';
+				$('#jwMsgDlgCloseBtn').text(button_text);
+				
+				$('#jwMsgDlgCancelBtn').remove();
+				if (!is_empty($(this).data('add_cancel_btn'))){
+					$(this).append('<div id="jwMsgDlgCancelBtn" '
+							+ 'onclick="$(\'#jwMsgDlg\').data(\'close_func\',null);$(\'#jwMsgDlg\').dialog(\'close\');" '
+							+ 'class="btn_base btn_129_35 allowHover unselectable" '
+							+ 'style="position:absolute;bottom:10px;right:150px;">'+$(this).data('add_cancel_btn')+'</div>');
+				}
+			},
+			close: function(event, ui){
+				try{
+					$(".formErrorMarker").css("background-color", "#f5e488");
+					$(".formErrorMarker").focus();
+					
+					$(this).data('add_cancel_btn',null);
+					$(this).data('button_text', 'OK');					
+					if ((typeof $(this).data('close_func'))==='function')
+						$(this).data('close_func')();
+					$(this).data('close_func',null);
+					$('#jwMsgDlgCounterDiv').html('');
+				}catch(ex){
+					alert('Error 11348:' + ex.message);
+				}
+			}
+			,width: '90%'
+			,height: 'auto'
+			,dialogClass: 'global_jw_msg_dlg'
+			,autoOpen: false
+			,position: pos_obj
+			,closeOnEscape: false
+			,modal: DlgSettings.isModal
+			,resizable: DlgSettings.isResizable
+			,draggable: DlgSettings.isDraggable
+		});
+	} catch (ex) {
+		//alert('Error45770: ' + ex.message);
+	}
+}
+
+function is_defined(variable){
+	return (typeof variable !== 'undefined');
+}
+
+
+$(function() {
+	$('body').on('keyup', function(e) {
+		if (e.keyCode==13) {
+			try{	//try is needed for places where jqueryui is not available
+				
+				//bypass for msg3
+				if (is_defined(_do_not_close_jwMsgDlg_on_enter) && _do_not_close_jwMsgDlg_on_enter)
+					return;
+				
+				if ($("#jwMsgDlg").is(':ui-dialog')){
+					if ($("#jwMsgDlg").dialog('isOpen')==true) {
+						$('#jwMsgDlg').dialog("close");
+					}
+				}
+			} catch(ex){}
+		}
+	});
+	
+	$('input', 'textarea').on('click keyup', function(e) {
+		$(".formErrorMarker").css("background", "#ffffff");
+		$('input, textarea').removeClass('formErrorMarker');
+	});
+	
+	append_jwMsgDlg();
+	$('#jwMsgDlgCloseBtn').on('click', function(e) {
+		$('#jwMsgDlg').dialog("close");
+	});
+});
+
+
+function showMsgDlg(msg) {
+	$("#jwMsgDlg").data('close_func',null);
+	$("#jwMsgDlg").data('add_cancel_btn',null);
+	$("#jwMsgDlg").data('button_text', 'OK');
+	
+	if (typeof(msg)=='string' && (msg.length>0)) {
+		$("#jwMsgDlg").dialog({
+			 maxWidth: msg.length<=100 ? '300px' : '400px'
+			,modal: true
+		});
+		$('#jwMsgDlgContent').html(msg);
+		$('#jwMsgDlg').dialog("open");
+	}
+}
+
+function showMsgDlgWithTimeout(msg, milliseconds, func) {
+	$("#jwMsgDlg").data('close_func',null);
+	$("#jwMsgDlg").data('add_cancel_btn',null);
+	$("#jwMsgDlg").data('button_text', 'OK');
+	
+	if (typeof(msg)=='string' && (msg.length>0)) {
+		$("#jwMsgDlg").dialog({
+			 maxWidth: msg.length<=100 ? '300px' : '400px'
+			,modal: true
+		});
+		$('#jwMsgDlgContent').html(msg);
+		$('#jwMsgDlg').dialog("open");
+		
+		var count = milliseconds/1000;
+		var timer = setInterval(function(){
+			count--;
+			if(count>0)
+				$('#jwMsgDlgCounterDiv').html(count);
+		},1000);
+		setTimeout(function(){
+			clearInterval(timer);
+			$('#jwMsgDlg').dialog("close");
+			if (func) func();
+		},milliseconds);
+	}
+}
+
+function showMsgDlgWithFunc(msg, func) {
+	if (typeof(msg)=='string' && (msg.length>0)) {
+		$("#jwMsgDlg").dialog({
+			 maxWidth: msg.length<=100 ? '300px' : '400px'
+			,modal: true
+		});
+		$("#jwMsgDlg").data('close_func', func);
+		$('#jwMsgDlgContent').html(msg);
+		$('#jwMsgDlg').dialog("open");
+	}
+	else {
+		func();
+	}
+}
+
+/* ************************************************************************************ */
+/* dialog message and form messages functions - END										*/
+/* ************************************************************************************ */
+
+function formShowAlertMsg(fieldID, msg) {
+	showMsgDlgWithFunc(msg, function(){
+		$('input, textarea').removeClass('formErrorMarker');
+		$('#'+fieldID).focus();
+		$('#'+fieldID).addClass('formErrorMarker');
+	});
+}
+
+function out_if_session_expired_for_user(err_id) {
+	try {
+		if ((err_id == ERROR.SESSION_EXPIRED) || (err_id==ERROR.PERMISSION_DENIED)) {
+			alert('Session expired. Please login again.');
+			location.href='/jollywallet/login?backTo=/jollywallet/';
+			return true;
+		}
+	} catch(ex){}
+	return false;
+}
+
+//true if str is null, undefined, or its length==0
+function is_empty(str){
+	if (typeof str == 'undefined') return true;
+	if (!str) return true;	//covers null and undefined
+	if (str.length<1) return true;
+	return false;
+}
+
+function set_login_control(name, layout_version) {
+	if (layout_version==1) {
+		$("#login_user").before("<div id='login_sep' style='float:right;'>&nbsp;/&nbsp;</div>");
+		$("#login_user").html("Hi, "+name);
+		$("#login_action").html('Logout');	
+		$("#login_action").attr("href", "javascript:Navigate(\'logout/backTo/%2Fjollywallet%2F\')");
+	} else if (layout_version==2) {
+		$('#login_logout_box').html('<div class="logout_box_item unselectable">Hi, ' + name + '&nbsp;/&nbsp;' 
+			+ '<a href="javascript:void(0);" onclick="javascript:Navigate(\'logout\');";>Logout</a></div>');
+	}
+};
+
+function reset_login_control(layout_version) {
+	if (layout_version==1) {
+		$("#login_sep").remove();
+		$("#login_user").html("");
+		$("#login_action").html('Login');	
+		$("#login_action").attr("href", "javascript:Navigate(\'myaccount\')");
+	} else if (layout_version==2) {
+		$('#login_logout_box').html('<div id="login_top_btn" class="login_box_item hand" style="float:right;" onclick="javascript:Navigate(\'myaccount\');"></div>');
+		$('#login_logout_box').append('<div class="login_box_item" style="float:right;padding-left:5px;padding-right:7px;padding-top:3px;">or</div>');
+		$('#login_logout_box').append('<div id="fb_connect_top_btn" class="login_box_item hand" style="float:right;" onclick="javascript:Navigate(\'myaccount\');"></div>');
+	}
+};
+
+//parse all parameters of the current url   e.g. ?param1=123&param2=abcd
+//to use var auto_start = read_url_params()['auto_start'];
+function read_url_params() {
+	var url = (arguments.length<1 ? window.location.href : arguments[0]);
+	var params = {}, hash;
+	var hashes = decodeURI(url).replace("+"," ").slice(url.indexOf('?') + 1).split('&');
+	for (var i=0; i<hashes.length; i++) {
+		hash = hashes[i].split('=');
+		params[hash[0]] = hash[1];
+	}
+	return params;
+}
+
+//read url params by slashes	e.g. /dist/123/subid/8765
+//usage: read_slashed_params('pid'). If pid not found, return undefined
+function read_slashed_params(fld_name) {
+	try {
+		var arr = (window.location.pathname).split("/");
+		for(var i=1; i<(arr.length-1); i+=2){
+			if ((arr[i]==fld_name) && (arr[i+1].trim().length>0)) return arr[i+1];
+		}
+	} catch(ex){}
+	return undefined;
+}
+
+//there may be 2 arguments (left, top) to customize the default position
+//e.g. processing_start(250, 350)
+//third one may be added to select specific div to stick it in
+function processing_start() {
+	var style = '';
+	if (arguments.length>=2) {
+		style=' style="position:absolute;left:{0}px;top:{1}px;"'.jw_format(arguments[0], arguments[1]);
+	}
+	var div = 
+		'<div class="processing_div" id="processing_div"' + style + '>'
+		+'<div style="float:left;margin-left:15px;margin-top:17px;padding-right:10px;">Processing...</div>'
+		+'<div style="float:left;margin-top:15px;padding-right:17px;"><img src="'+_static_path+'/resources/images/radyoos/admin/ajax-loader.gif" /></div>'
+		+'</div>';
+	$('.processing_div').remove();	//cleanup
+	if (arguments.length<=2)
+		$('#dynamic_box').append(div);
+	else
+		$('#'+arguments[2]).append(div);
+		
+}
+
+function processing_end() {
+	$('.processing_div').remove();
+}
+
+var _cookie_name= 'jw_login_attempts';
+var _time_slice = 240;	//4 hours
+var _max_num_of_attempts = 20;
+var _time_zero	= {
+	 num_of_attempts:	1
+	,timestamp: 		Math.round(new Date().getTime() / (60*1000))	//minutes since the epoch
+};
+
+function show_merge_dlg_scenario_4() {
+	$('#jwMergeDlg4').dialog("open");
+}
+
+function show_merge_dlg_scenario_7() {
+	$('#jwMergeDlg7').dialog("open");
+}
+
+function show_merge_dlg_scenario_8() {
+	$('#jwMergeDlg8').dialog("open");
+}
+
+
+function merge_pwd_keyup(btn_name, pwd, e) {
+	$btn = $(btn_name);
+	if (pwd.length<6)
+	{
+		$btn.addClass('disabled_div_btn');
+		$btn.removeClass('allowHover');
+	}
+	else
+	{
+		$btn.removeClass('disabled_div_btn');
+		$btn.addClass('allowHover');
+		if (e.keyCode==13) {
+			e.stopPropagation();
+			$btn.click();
+		}
+	}
+}
+
+
+function merge_btn_click() {
+	var $dlg, $pwd_input, id = $(this).attr('id');
+	var type, fb_user_email, fb_user_id;
+	
+	if (id=='jwMergeDlg4CancelBtn') {
+		$('#jwMergeDlg4').dialog('close');
+		return;
+	}
+	if (id=='jwMergeDlg7CancelBtn') {
+		$('#jwMergeDlg7').dialog('close');
+		return;
+	}
+	if (id=='jwMergeDlg8CancelBtn') {
+		$('#jwMergeDlg8').dialog('close');
+		return;
+	}
+	
+	if ($(this).hasClass('disabled_div_btn'))
+		return;
+	
+	if ($(this).attr('id')=='jwMergeDlg4OKBtn') {
+		$dlg = $('#jwMergeDlg4');
+		fb_user_email = $('#jwMergeDlg4').attr('data_fb_user_email');
+		fb_user_id = $('#jwMergeDlg4').attr('data_fb_user_id');
+		type = 'merge_fb_with_jw_account_scenario_4';
+		$pwd_input = $('#merge_pwd4');
+	} else if ($(this).attr('id')=='jwMergeDlg7OKBtn') {
+		$dlg = $('#jwMergeDlg7');
+		fb_user_email = $('#jwMergeDlg7').attr('data_fb_user_email');
+		fb_user_id = $('#jwMergeDlg7').attr('data_fb_user_id');
+		type = 'merge_fb_with_jw_account_scenario_7';
+		$pwd_input = $('#merge_pwd7');
+	} else {
+		$dlg = $('#jwMergeDlg8');
+		fb_user_email = $('#jwMergeDlg8').attr('data_fb_user_email');
+		fb_user_id = $('#jwMergeDlg8').attr('data_fb_user_id');
+		type = 'merge_fb_with_jw_account_scenario_8_10';
+		$pwd_input = $('#merge_pwd8');
+	}
+	
+	var url ="/radyoos/api/sso";
+	var json = {
+		 type:			type
+		,token: 		(typeof _token === 'undefined' ? '' : _token)
+		,fb_user_email:	fb_user_email
+		,fb_user_id: 	fb_user_id
+		,jw_pwd:		jw_md5.calcMD5($pwd_input.val())
+	};
+
+	$.post( url, objtostring(json),
+		function(objx) {
+			obj = JSON.parse(objx);
+			try {
+				if (obj.status != ERROR.NO_ERROR) { 
+					showMsgDlg(obj.msg);
+			        return; 
+				}
+				$dlg.dialog("close");
+				showMsgDlgWithFunc('Your jolly<span style="font-weight:bold;">wallet</span> and Facebook accounts have been successfully connected.',
+					function() {
+						if (typeof is_landing_page_rev2_a !== 'undefined'){
+							location.href='/jollywallet/lp/lp/lp_rev2_b';
+						} else {
+							login_user(obj.uname, jw_md5.calcMD5($pwd_input.val()));
+						}
+				});
+	        } catch (ex) {
+				alert('Error 230601: failed to merge Facebook account.');
+				return;
+	        }
+	});
+}
+
+
+function disconnect_cancel_btn_clicked() {
+	$('#jwDisconnectDlg').dialog('close');
+	var url ="/radyoos/api/users";
+	var json = {
+		 command: 'disconnect_cancel_btn_clicked'
+		,token	: _token
+	};
+	$.post(url, objtostring(json),function(objx){});
+}
+
+function disconnect_ok_btn_clicked() {
+	var url ="/radyoos/api/users";
+	var json = {
+		 command: 'disconnect_ok_btn_clicked'
+		,pwd	: jw_md5.calcMD5($('#disconnect_pwd1').val())
+		,token	: _token
+	};
+	$.post(url, objtostring(json),function(obj){
+		try {
+			if (obj.status != ERROR.NO_ERROR) { 
+				showMsgDlg(obj.msg);
+				return; 
+			}
+			$('#jwDisconnectDlg').dialog('close');
+		} catch (ex) {
+			alert('Error 223601: failed to change password. Please try again.');
+			return;
+		}
+	});
+}
+
+
+//run after merge_fb_with_jw_account_scenario_4
+function login_user(username, pwd) {
+	var url,json;
+	url = '/radyoos/api/sso';
+	json = {
+		type:		'login', 
+		user: 		username, 
+		password:	pwd
+	};
+
+	$.post( url, objtostring(json),
+		function(objx) {
+			obj = JSON.parse(objx);
+			try {
+				if (obj.status != ERROR.NO_ERROR) { 
+					showMsgDlg(obj.msg);
+					update_login_attempts_counter();
+					return; 
+				}
+			} catch (ex) {
+				alert('Error 440601: failed to login.');
+				return;
+			}
+			$.removeCookie(_cookie_name, { path: '/' });	//clear the cookie on successful login
+			location.href = '/jollywallet/' + (window.location.href.indexOf('tlbadmin')>0 ? 'tlbadmin' : 'myaccount')
+					+ '?token=' + obj.token + '&selected_tab=facebook_tab';
+
+	});
+}
+
+function update_login_attempts_counter(username){
+	var cookie, str = $.cookie(_cookie_name);
+	if (!str) {
+		cookie = _time_zero;
+	} else {
+		cookie = JSON.parse(str);
+		cookie['num_of_attempts'] += 1;
+	}
+	
+	var current_time = Math.round(new Date().getTime() / (60*1000));
+	var diff = current_time - cookie['timestamp'];
+
+	if (diff > _time_slice)
+		cookie = _time_zero;
+		
+	$.cookie(_cookie_name, JSON.stringify(cookie), { path: '/', expires: 1 });
+	
+	if (cookie['num_of_attempts'] >= _max_num_of_attempts) {
+		block_account(username);
+	}	
+}
+
+function block_account(username){
+	var url,json;
+	url = '/radyoos/api/sso';
+	json = {
+		 type:		'block_account'
+		,user: 		username
+		,reason:	'num of attempts exceeded'
+	};
+	$.post( url, objtostring(json),
+		function(objx) {
+			$.removeCookie(_cookie_name, { path: '/' });
+		}
+	);
+}
+
+function add_fb_merge_dlg_scenario_4(email, fb_id) {
+	var dlg =
+'<div id="jwMergeDlg4" style="display:none;overflow:hidden;position:relative;"'+
+	'data_fb_user_email="' + email + '" data_fb_user_id="' + fb_id + '">'+
+	'<div id="jwMergeDlg4Content" class="textS" style="padding-top:10px;overflow:hidden;">'+
+		'<div class="unselectable">The email address associated with this Facebook account already exists in the jolly<span style="font-weight:bold;">wallet</span> system; please enter your jolly<span style="font-weight:bold;">wallet</span> password to connect both accounts:</div>'+
+		'<div style="margin-top:0px;">'+
+			'<div class="formLineRight f_right">'+
+				'<div class="editFrameLeft"></div>'+
+				'<div class="editFrameMid"><input id="merge_pwd4" style="width:200px;" type="password" class="editField" maxlength="16" /></div>'+
+				'<div class="editFrameRight"></div>'+
+			'</div>'+
+			'<div class="f_right unselectable" style="margin-right:10px;margin-top:15px;">jolly<span style="font-weight:bold;">wallet</span> password:</div>'+
+			'<div class="clear"></div>'+
+			'<div class="f_right" style="margin-right:50px;"><a href="https://www.jollywallet.com/jollywallet/login/cmd/forgot?email=' + email + '&src=fb_merge" target="_blank">Forgot your password?</a></div>'+
+		'</div>'+
+	'</div>'+
+	'<div id="jwMergeDlg4CancelBtn" class="btn_base btn_129_35 allowHover jw_merge_btn" style="bottom:10px;right:10px;">Cancel</div>'+
+	'<div id="jwMergeDlg4OKBtn" class="btn_base btn_129_35 disabled_div_btn jw_merge_btn" style="bottom:10px;right:152px;">Connect</div>'+
+'</div>';
+
+	$('body').append(dlg);
+
+	$('#merge_pwd4').on('keyup', function(e) {
+		var pwd = $(this).val();
+		merge_pwd_keyup('#jwMergeDlg4OKBtn', pwd, e);
+	});
+	
+	$('.jw_merge_btn').on('click', merge_btn_click);
+
+	
+	$("#jwMergeDlg4").dialog({
+		create: function(event, ui){ 
+			$(this).parents(".ui-dialog:first").find(".ui-widget-header").hide();
+		},
+		open: function(event, ui){},
+		close: function(event, ui){
+			$(".formErrorMarker").css("background-color", "#f5e488");
+			$(".formErrorMarker").focus();
+		}
+		,width: 400
+		,height: 180
+		,autoOpen: false
+		,modal: DlgSettings.isModal
+		,resizable: DlgSettings.isResizable
+		,draggable: DlgSettings.isDraggable
+	});	
+}
+
+function add_fb_merge_dlg_scenario_7(email, fb_id) {
+	var dlg =
+'<div id="jwMergeDlg7" style="display:none;overflow:hidden;position:relative;"'+
+	'data_fb_user_email="' + email + '" data_fb_user_id="' + fb_id + '">'+
+	'<div id="jwMergeDlg7Content" class="textS" style="padding-top:10px;overflow:hidden;">'+
+		'<div class="unselectable">Please enter the password for your jolly<span style="font-weight:bold;">wallet</span> account:</div>'+
+		'<div style="margin-top:0px;">'+
+			'<div class="formLineRight f_right">'+
+				'<div class="editFrameLeft"></div>'+
+				'<div class="editFrameMid"><input id="merge_pwd7" style="width:200px;" type="password" class="editField" maxlength="16" /></div>'+
+				'<div class="editFrameRight"></div>'+
+			'</div>'+
+			'<div class="f_right unselectable" style="margin-right:10px;margin-top:15px;">jolly<span style="font-weight:bold;">wallet</span> password:</div>'+
+			'<div class="clear"></div>'+
+			'<div class="f_right" style="margin-right:50px;"><a href="https://www.jollywallet.com/jollywallet/login/cmd/forgot?email=' + email + '&src=fb_merge" target="_blank">Forgot your password?</a></div>'+
+		'</div>'+
+	'</div>'+
+	'<div id="jwMergeDlg7CancelBtn" class="btn_base btn_129_35 allowHover jw_merge_btn" style="bottom:10px;right:10px;">Cancel</div>'+
+	'<div id="jwMergeDlg7OKBtn" class="btn_base btn_129_35 disabled_div_btn jw_merge_btn" style="bottom:10px;right:152px;">Connect</div>'+
+'</div>';
+
+	$('body').append(dlg);
+	
+	$('#merge_pwd7').on('keyup', function(e) {
+		var pwd = $(this).val();
+		merge_pwd_keyup('#jwMergeDlg7OKBtn', pwd, e);
+	});
+	
+	$('.jw_merge_btn').on('click', merge_btn_click);
+	
+	$("#jwMergeDlg7").dialog({
+		create: function(event, ui){ 
+			$(this).parents(".ui-dialog:first").find(".ui-widget-header").hide();
+		},
+		open: function(event, ui){},
+		close: function(event, ui){
+			$(".formErrorMarker").css("background-color", "#f5e488");
+			$(".formErrorMarker").focus();
+		}
+		,width: 400
+		,height: 180
+		,autoOpen: false
+		,modal: DlgSettings.isModal
+		,resizable: DlgSettings.isResizable
+		,draggable: DlgSettings.isDraggable
+	});	
+}
+
+function add_fb_merge_dlg_scenario_8(email, fb_id) {
+	var dlg =
+'<div id="jwMergeDlg8" style="display:none;overflow:hidden;position:relative;"'+
+	'data_fb_user_email="' + email + '" data_fb_user_id="' + fb_id + '">'+
+	'<div id="jwMergeDlg8Content" class="textS" style="padding-top:10px;overflow:hidden;">'+
+		'<div class="unselectable">The email address associated with this Facebook account already exists in the jolly<span style="font-weight:bold;">wallet</span> system; please enter your jolly<span style="font-weight:bold;">wallet</span> password to connect both accounts:</div>'+
+		'<div style="margin-top:0px;">'+
+			'<div class="formLineRight f_right">'+
+				'<div class="editFrameLeft"></div>'+
+				'<div class="editFrameMid"><input id="merge_pwd8" style="width:200px;" type="password" class="editField" maxlength="16" /></div>'+
+				'<div class="editFrameRight"></div>'+
+			'</div>'+
+			'<div class="f_right unselectable" style="margin-right:10px;margin-top:15px;">jolly<span style="font-weight:bold;">wallet</span> password:</div>'+
+			'<div class="clear"></div>'+
+			'<div class="f_right" style="margin-right:50px;"><a href="https://www.jollywallet.com/jollywallet/login/cmd/forgot?email=' + email + '&src=fb_merge" target="_blank">Forgot your password?</a></div>'+
+		'</div>'+
+	'</div>'+
+	'<div id="jwMergeDlg8CancelBtn" class="btn_base btn_129_35 allowHover jw_merge_btn" style="bottom:10px;right:10px;">Cancel</div>'+
+	'<div id="jwMergeDlg8OKBtn" class="btn_base btn_129_35 disabled_div_btn jw_merge_btn" style="bottom:10px;right:152px;">Connect</div>'+
+'</div>';
+
+	$('body').append(dlg);
+
+	$('#merge_pwd8').on('keyup', function(e) {
+		var pwd = $(this).val();
+		merge_pwd_keyup('#jwMergeDlg8OKBtn', pwd, e);
+	});
+	
+	$('.jw_merge_btn').on('click', merge_btn_click);
+	
+	$("#jwMergeDlg8").dialog({
+		create: function(event, ui){ 
+			$(this).parents(".ui-dialog:first").find(".ui-widget-header").hide();
+		},
+		open: function(event, ui){},
+		close: function(event, ui){
+			$(".formErrorMarker").css("background-color", "#f5e488");
+			$(".formErrorMarker").focus();
+		}
+		,width: 400
+		,height: 180
+		,autoOpen: false
+		,modal: DlgSettings.isModal
+		,resizable: DlgSettings.isResizable
+		,draggable: DlgSettings.isDraggable
+	});	
+}
+
+function add_fb_disconnect_dlg(email, fb_id) {
+	var dlg =
+'<div id="jwDisconnectDlg" style="display:none;overflow:hidden;position:relative;"'+
+	'data_fb_user_email="' + email + '" data_fb_user_id="' + fb_id + '">'+
+	'<div id="jwDisconnectDlgContent" class="textS" style="padding-top:10px;overflow:hidden;">'+
+		'<div class="unselectable">Your Facebook account has been successfully disconnected from your jolly<span style="font-weight:bold;">wallet</span> account. Please create a new jolly<span style="font-weight:bold;">wallet</span> password:</div>'+
+		'<div style="margin-top:0px;">'+
+			'<div class="formLineRight f_right">'+
+				'<div class="editFrameLeft"></div>'+
+				'<div class="editFrameMid"><input id="disconnect_pwd1" style="width:200px;" type="password" class="editField" maxlength="16" /></div>'+
+				'<div class="editFrameRight"></div>'+
+			'</div>'+
+			'<div class="f_right unselectable" style="margin-right:10px;margin-top:15px;">Password:</div>'+
+			'<div class="clear"></div>'+
+			'<div class="f_right unselectable" style="margin-right:25px;font-size:11px;color:#656565;">(Minimum six characters long)</div>'+
+			'<div class="clear"></div>'+
+			'<div class="formLineRight f_right">'+
+				'<div class="editFrameLeft"></div>'+
+				'<div class="editFrameMid"><input id="disconnect_pwd2" style="width:200px;" type="password" class="editField" maxlength="16" /></div>'+
+				'<div class="editFrameRight"></div>'+
+			'</div>'+
+			'<div class="f_right unselectable" style="margin-right:10px;margin-top:15px;">Verify password:</div>'+
+			'<div class="clear"></div>'+
+		'</div>'+
+	'</div>'+
+	'<div id="jwDisconnectDlgCancelBtn" class="btn_base btn_129_35 allowHover jw_disconnect_btn" style="bottom:10px;right:10px;">Cancel</div>'+
+	'<div id="jwDisconnectDlgOKBtn" class="btn_base btn_129_35 disabled_div_btn jw_disconnect_btn" style="bottom:10px;right:152px;">OK</div>'+
+'</div>';
+
+	$('body').append(dlg);
+	
+	$('#disconnect_pwd1, #disconnect_pwd2').on('keyup', function(e) {
+		var pwd1 = $('#disconnect_pwd1').val();
+		var pwd2 = $('#disconnect_pwd2').val();
+		var $btn  = $('#jwDisconnectDlgOKBtn');
+		if (pwd1.length<6 || pwd1!=pwd2)
+		{
+			$btn.addClass('disabled_div_btn');
+			$btn.removeClass('allowHover');
+		}
+		else
+		{
+			$btn.removeClass('disabled_div_btn');
+			$btn.addClass('allowHover');
+		}
+	});
+	
+	
+	$('.jw_disconnect_btn').on('click', function(e) {
+		if ($(this).hasClass('disabled_div_btn'))
+			return;
+		var id = $(this).attr('id');
+		if (id=='jwDisconnectDlgCancelBtn') {
+			disconnect_cancel_btn_clicked();
+		} else {	// OK was clicked. id=='jwDisconnectDlgOKBtn'
+			disconnect_ok_btn_clicked();
+		}
+	});
+	
+	
+	$("#jwDisconnectDlg").dialog({
+		create: function(event, ui){ 
+			$(this).parents(".ui-dialog:first").find(".ui-widget-header").hide();
+		},
+		open: function(event, ui){},
+		close: function(event, ui){
+			$(".formErrorMarker").css("background-color", "#f5e488");
+			$(".formErrorMarker").focus();
+		}
+		,width: 350
+		,height: 230
+		,autoOpen: false
+		,closeOnEscape: false
+		,modal: DlgSettings.isModal
+		,resizable: DlgSettings.isResizable
+		,draggable: DlgSettings.isDraggable
+	});	
+}
+
+function append_tiny_loader(jq_obj, style){
+	var stl = 'left:-20px;top:5px;';
+	if (is_defined(style))
+		stl = style;
+	jq_obj.append('<div class="tiny_loader" style="{0}"></div>'.jw_format(stl));
+}
+
+function remove_tiny_loader(){
+	$('.tiny_loader').remove();
+}
+
+function show_windmill_loader(){
+	remove_windmill_loader();	//if exists anywhere
+	var w = $('body').width();
+	var h = $('body').height();
+	var top = (h/2-64);
+	var left = (w/2-64);
+	var loader_img = _static_path+'/resources/images/jw/big_loader_02.gif'; 
+	
+	var divx = '<div id="windmill_loader" \
+		style="z-index:9999999999999999;position:absolute;height:128px;width:128px;top:'+top+'px;left:'+left+'px;">\
+			<img src="'+loader_img+'" border="0" /></div>';
+	$('body').append(divx);
+}
+
+function remove_windmill_loader(){
+	$('#windmill_loader').remove();
+}
+
+function js_money(num, signx){
+	if (isNaN(parseFloat(num)) || !isFinite(num))
+		return '';
+	var str = numberWithCommas(num);
+	if (str.indexOf('.')<0)
+		str += '.';
+	str += '00';
+	return signx + str.substr(0, str.indexOf('.')+3);
+}
+
+function numberWithCommas(n) {
+    var parts=n.toString().split(".");
+    return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+}
+
+function is_json(str) {
+    try{
+    	JSON.parse(str);
+    }catch(e){
+    	return false;
+    }
+	return true;
+}
+function json_str(obj){
+	return JSON.stringify(obj);
+}
+
+function cl(){
+	if (arguments.length<1)
+		return;
+	if (arguments.length==1) {
+		if (typeof arguments[0] === 'object')
+			console.log(JSON.stringify(arguments[0]));
+		else
+			console.log(arguments[0]);
+	} else{
+		var str = '';
+		for (var i=0; i<arguments.length; i++){
+			if (arguments[i]==undefined)
+				str += '- undefined';
+			else if (arguments[i]==null)
+				str += '- null';
+			else if (arguments[i]=='')
+				str += '- empty';
+			else
+				str += '-' + arguments[i].toString();
+		}
+		console.log(str);
+	}
+}
+
+//not working perfectly in chrome. so test that the button is disabled
+function disable_btn(id, is_disable) {
+	try {
+		$('#'+id).button("option", "disabled", is_disable);
+	} catch(ex){}
+}
+
+function openNew(link){window.open(link);}
+
+function jw_is_msie(){
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf("MSIE ");
+    return (msie > 0);
+}
+
+//can test: $.browser.chrome, mozilla, webkit, msie, safari - can also check for version: $.browser.version
+//for other browser check the $.browser object, see what it returns, and u can test for it as well
+function jquery_browser_maker(){
+
+	jQuery.uaMatch = function( ua ) {
+	    ua = ua.toLowerCase();
+	    var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+	        /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+	        /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+	        /(msie) ([\w.]+)/.exec( ua ) ||
+	        ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) || [];
+	    return {
+	        browser: match[ 1 ] || "",
+	        version: match[ 2 ] || "0"
+	    };
+	};
+
+	if ( !jQuery.browser ) {
+	    var matched = jQuery.uaMatch( navigator.userAgent ),
+	    browser = {};
+	    if ( matched.browser ) {
+	        browser[ matched.browser ] = true;
+	        browser.version = matched.version;
+	    }
+	    // Chrome is Webkit, but Webkit is also Safari.
+	    if ( browser.chrome ) {
+	        browser.webkit = true;
+	    } else if ( browser.webkit ) {
+	        browser.safari = true;
+	    }
+	    jQuery.browser = browser;
+	}
+}
+function strx(s){
+	try{
+		if (s==null || s==undefined) return '';
+		return s;
+	}catch(ex){
+		return s;
+	}
+}
+function intx(s){	//return 0 if not a number
+	try{
+		if (s==null || s==undefined) return 0;
+		var i = parseInt(s);
+		if (isNaN(i)) i = 0;
+		return i;
+	}catch(ex){
+		return 0;
+	}
+}
+function is_touch(){
+	try{
+		return ("ontouchstart" in document.documentElement);
+	}catch(ex){
+		return true;
+	}
+}

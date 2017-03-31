@@ -1,0 +1,430 @@
+/*
+ general description
+ -------------------
+ jw_combo handles the envelope. moving the icons around, popup or not, etc.
+ jw_combo_t1, jw_combo_t2,... are the relevant code for the templates.
+
+ the whole thing works like this:
+ jw_combo_starter(datax) is called from jwInterface.jw_loadAffCombo in jw_interfac_2.js
+ there we instantiate jw_combox = new jw_combo_t1() or 2,..., mess with the datax a bit and push it into jw_combo.init();
+ jw_combo.init() eventually shows the icon(s) on screen, clicking an icon and the template code starts to do its things.
+*/
+
+function cpx(str, is_always_log) {
+
+	if (false){	//set to false for release.
+		if (typeof(is_always_log)=='undefined' || is_always_log===true){
+			console.log(str);
+			return;
+		}
+	}
+	
+	//print if rym_debug is set.
+	if(typeof(Storage)== 'undefined') return;
+	var val = sessionStorage.getItem('rym_debug');
+	if (!val || (val!=='1' && val!=='true')) return;
+	console.log(str);
+}
+function cpx2(str) {
+	console.log('*** '+str);
+}
+
+// -----------------------------------------------------------------------------------------------------------
+
+var jw_combox = null;
+var jw_const = {
+	cashback_app_id: 1,
+	amp_app_id: 2,
+	pc_app_id: 3,
+	adv_app_id: 4,
+	my_account_app_id: 5,	//app ids will be shared by all templates. so they should be in jw_combo.
+	upsell_app_id: 6,
+	cpc_app_id_int: 11,
+	cpc_app_id_ext: 12,
+	about_app_id: 998,
+	settings_app_id: 999
+};
+
+//--------------------------------------------------------------------------------------------------------------
+//loading order: jw_combo_base.js -> jw_combo_atomic.js -> jw_combo_layout_side_pane.js -> jw_combo_side_single_icon.js
+//--------------------------------------------------------------------------------------------------------------
+function jw_side_single_icon_runner(datax) {
+	try{
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_layout_side_pane.js").done(function(script, textStatus) {
+			jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_side_single_icon.js").done(function(script, textStatus) {
+				if (textStatus == 'success') {
+					//take care of "classes" hierarchy here
+					//note: in each class init(), u should call its parent like this: parent_name.call(this, obj), e.g. jw_combo_base.call(this, obj); in jw_combo_atomic.js
+					jw_combo_atomic.prototype = Object.create(jw_combo_base.prototype);
+					jw_combo_atomic.prototype.constructor = jw_combo_atomic;
+	
+					jw_combo_layout_side_pane.prototype = Object.create(jw_combo_atomic.prototype);
+					jw_combo_layout_side_pane.prototype.constructor = jw_combo_layout_side_pane;
+					
+					jw_combo_side_single_icon.prototype = Object.create(jw_combo_layout_side_pane.prototype);
+					jw_combo_side_single_icon.prototype.constructor = jw_combo_side_single_icon;
+					
+					jw_combox = new jw_combo_side_single_icon({datax:datax});
+					
+				} else {
+					console.log('JW Error 10513: Failed to load jw_combo_side_single_icon.js');
+				}
+			}).fail(function(jqxhr, settings, exception) {
+				console.log('JW Error 10013: Failed to load jw_combo_side_single_icon.js');
+			});
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 10012: Failed to load jw_combo_layout_side_pane.js');
+		});
+	}catch(ex){
+		console.log('JW Ex 22159: '+ex.message);
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------------
+//loading order: jw_combo_base.js -> jw_combo_atomic.js -> jw_combo_layout_side_pane.js -> jw_combo_side_single_icon_354.js
+//--------------------------------------------------------------------------------------------------------------
+function jw_side_single_icon_354_runner(datax) {
+	try{
+		var dist = datax.dist;
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_layout_side_pane.js").done(function(script, textStatus) {
+			jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_side_single_icon_"+dist+".js").done(function(script, textStatus) {
+				if (textStatus == 'success') {
+					//take care of "classes" hierarchy here
+					//note: in each class init(), u should call its parent like this: parent_name.call(this, obj), e.g. jw_combo_base.call(this, obj); in jw_combo_atomic.js
+					jw_combo_atomic.prototype = Object.create(jw_combo_base.prototype);
+					jw_combo_atomic.prototype.constructor = jw_combo_atomic;
+	
+					jw_combo_layout_side_pane.prototype = Object.create(jw_combo_atomic.prototype);
+					jw_combo_layout_side_pane.prototype.constructor = jw_combo_layout_side_pane;
+					
+					jw_combo_side_single_icon_354.prototype = Object.create(jw_combo_layout_side_pane.prototype);
+					jw_combo_side_single_icon_354.prototype.constructor = jw_combo_side_single_icon_354;
+					
+					jw_combox = new jw_combo_side_single_icon_354({datax:datax});
+				} else {
+					console.log('JW Error 22513: Failed to load jw_combo_side_single_icon_354.js');
+				}
+			}).fail(function(jqxhr, settings, exception) {
+				console.log('JW Error 44213: Failed to load jw_combo_side_single_icon.js');
+			});
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 14413: Failed to load jw_combo_layout_side_pane.js');
+		});
+	}catch(ex){
+		console.log('JW Ex 90173: '+ex.message);
+	}
+}
+
+// --------------------------------------------------------------------------------------------------------------
+// loading order: jw_combo_base.js -> jw_combo_atomic.js -> jw_combo_layout_popup.js -> jw_combo_t2.js
+// --------------------------------------------------------------------------------------------------------------
+function jw_t2_runner(datax) {
+	try{
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_layout_popup.js").done(function(script, textStatus) {
+			jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_t2.js").done(function(script, textStatus) {
+				if (textStatus == 'success') {
+					jw_combo_atomic.prototype = Object.create(jw_combo_base.prototype);
+					jw_combo_atomic.prototype.constructor = jw_combo_atomic;
+	
+					jw_combo_layout_popup.prototype = Object.create(jw_combo_atomic.prototype);
+					jw_combo_layout_popup.prototype.constructor = jw_combo_layout_popup;
+	
+					jw_combo_t2.prototype = Object.create(jw_combo_layout_popup.prototype);
+					jw_combo_t2.prototype.constructor = jw_combo_t2;
+	
+					jw_combox = new jw_combo_t2({datax:datax});
+				} else {
+					console.log('JW Error 10694: Failed to load jw_combo_t2.js');
+				}
+			}).fail(function(jqxhr, settings, exception) {
+				console.log('JW Error 20013: Failed to load jw_combo_t2.js');
+			});
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 20012: Failed to load jw_combo_layout_popup.js');
+		});
+	}catch(ex){
+		console.log('JW Ex 31244: '+ex.message);
+	}
+}
+
+// --------------------------------------------------------------------------------------------------------------
+// loading order: jw_combo_base.js -> jw_combo_atomic.js -> jw_combo_t3.js
+// --------------------------------------------------------------------------------------------------------------
+function jw_t3_runner(datax) {
+	try{
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_t3.js").done(function(script, textStatus) {
+			if (textStatus == 'success') {
+				jw_combo_atomic.prototype = Object.create(jw_combo_base.prototype);
+				jw_combo_atomic.prototype.constructor = jw_combo_atomic;
+				
+				jw_combo_t3.prototype = Object.create(jw_combo_atomic.prototype);
+				jw_combo_t3.prototype.constructor = jw_combo_t3;
+	
+				jw_combox = new jw_combo_t3({datax:datax});
+			} else {
+				console.log('JW Error 30694: Failed to load jw_combo_t3.js');
+			}
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 30013: Failed to load jw_combo_t3.js');
+		});
+	}catch(ex){
+		console.log('JW Ex 69930: '+ex.message);
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------------
+//loading order: jw_combo_base.js -> jw_combo_atomic.js -> jw_combo_layout_side_pane.js -> jw_combo_side_multi_icons.js
+//--------------------------------------------------------------------------------------------------------------
+function jw_side_multi_icons_runner(datax) {
+	try{
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_layout_side_pane.js").done(function(script, textStatus) {
+			jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_side_multi_icons.js").done(function(script, textStatus) {
+				if (textStatus == 'success') {
+	
+					//take care of "classes" hierarchy here
+					//note: in each class init(), u should call its parent like this: parent_name.call(this, obj), e.g. jw_combo_base.call(this, obj); in jw_combo_atomic.js
+					jw_combo_atomic.prototype = Object.create(jw_combo_base.prototype);
+					jw_combo_atomic.prototype.constructor = jw_combo_atomic;
+	
+					jw_combo_layout_side_pane.prototype = Object.create(jw_combo_atomic.prototype);
+					jw_combo_layout_side_pane.prototype.constructor = jw_combo_layout_side_pane;
+					
+					jw_combo_side_multi_icons.prototype = Object.create(jw_combo_layout_side_pane.prototype);
+					jw_combo_side_multi_icons.prototype.constructor = jw_combo_side_multi_icons;
+					
+					jw_combox = new jw_combo_side_multi_icons({datax:datax});
+					
+				} else {
+					console.log('JW Error 10513: Failed to load jw_combo_side_multi_icons.js');
+				}
+			}).fail(function(jqxhr, settings, exception) {
+				console.log('JW Error 10013: Failed to load jw_combo_side_multi_icons.js');
+			});
+	
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 10012: Failed to load jw_combo_layout_side_pane.js');
+		});
+	}catch(ex){
+		console.log('JW Ex 65309: '+ex.message);
+	}
+}
+
+function jw_initial_code(){
+	try{
+		
+		//jw_ebox() should be maintained in both amp.phtml and jw_combo.js (except for the $ vs. jw_jquery)
+		jw_jquery.fn.extend({
+			jw_ebox: function() {
+				try{
+					for(var i=0; i<this.length; i++){
+						var divs = jw_jquery(this[i]).children('div');
+						if (divs.length != 1) continue;	//a single inner div must exist. if it is not there, move on.
+						var divh = jw_jquery(this[i]).height();	//hidden divs (display:none;) have height==0. divs with visibility:hidden have height>0 and thus the code works on them.
+						while (divh>0 && jw_jquery(divs[0]).outerHeight()>divh){
+							jw_jquery(divs[0]).text(function (index, text) {
+						        return text.replace(/\W*\s(\S)*$/, '...');
+						    });
+						}
+					}
+				    return this;
+				}catch(ex){
+					return this;
+				}
+			}
+		});
+		
+		jw_jquery.extend({
+			jw_offset : function(id) { // get offset. if dom element is hidden get it from the css
+				try {
+					var obx = jw_jquery('#' + id);
+					if (obx.length<1){
+						console.log('JW Ex 53655: id='+id+' does not exist.');
+						return {left:0,top:0};
+					}
+					var pos = obx.offset();
+					if (!(jw_jquery('#' + id).is(":visible"))) {
+						pos.left = parseFloat(jw_jquery('#' + id).css('left'));
+						pos.top = parseFloat(jw_jquery('#' + id).css('top'));
+					}
+					return pos;
+				} catch (ex) {
+					console.log('JW Ex 53656: ' + ex.message+' id='+id);
+					return {left:0,top:0};
+				}
+			},
+			
+			//http://stackoverflow.com/questions/11803215/how-to-include-multiple-js-files-using-jquery-getscript-method
+			get_multi_scripts: function(arr, path) {
+			    var _arr = jw_jquery.map(arr, function(scr) {
+			        return jw_jquery.getScript( (path||'') + scr);
+			    });
+			    _arr.push(jw_jquery.Deferred(function( deferred ){
+			    	jw_jquery(deferred.resolve);
+			    }));
+			    return jw_jquery.when.apply(jw_jquery, _arr);
+			},
+	
+			jw_cached_script : function(url) {
+				try {
+					var options = {
+						dataType : "script",
+						cache : true,
+						crossDomain : true,
+						url : url
+					};
+					return jw_jquery.ajax(options);
+				} catch (ex) {
+					console.log('JW Ex 69901: ' + ex.message)
+					return null;
+				}
+			},	
+			jw_cached_css : function(url) {
+				try {
+					return jw_jquery.ajax({
+						dataType : 'text',
+						cache : true,
+						crossDomain : true,
+						url : url
+					});
+				} catch (ex) {
+					console.log('JW Ex 69902: ' + ex.message)
+					return null;
+				}
+			},
+			is_touch: function(){
+				try{
+					var tmp = ('ontouchstart' in window) || navigator.msMaxTouchPoints;
+					return (tmp ? true : false);	//tmp may be undefined
+				}catch(ex){
+					return false;
+				}
+			},
+			// when scrolling inside a div or iframe, the parent window won't scroll.
+			// works for mouse. not touch.
+			// selector element DOES NOT have to exist when calling this method
+			// selector may be class name, id, iframe, etc. example: '.box, iframe, #my_box'
+			jw_prevent_parent_scroll_clear: function(){
+				jw_jquery(document).data('jw_scroll_selector', {
+					inside_box : false
+				});
+			},
+			jw_prevent_parent_scroll : function(selector) {
+				if (jw_jquery.is_touch()) return;
+				jw_jquery(document).on('mouseenter', selector, function(e) {
+					var s = {};
+					s.inside_box = true;
+					s.scrollX = window.scrollX;
+					s.scrollY = window.scrollY;
+					jw_jquery(document).data('jw_scroll_selector', s);
+				});
+				jw_jquery(document).scroll(function() {
+					var s = jw_jquery(document).data('jw_scroll_selector') || {};
+					if (s.inside_box) {
+						window.scrollTo(s.scrollX, s.scrollY);
+					}
+				});
+				jw_jquery(document).on('mouseleave', selector, function(e) {
+					jw_jquery.jw_prevent_parent_scroll_clear();
+				});
+			},
+		    write_to_storage: function(storage_type, key, value){
+		    	if(typeof(Storage)!=='undefined') {
+		    		var storx = (storage_type=='session' ? sessionStorage : localStorage);
+		    		storx.setItem(key, value);
+		    	}
+			},
+		    read_from_storage: function(storage_type, key){
+		    	if(typeof(Storage)!=='undefined') {
+		    		var storx = (storage_type=='session' ? sessionStorage : localStorage);
+		    		return storx.getItem(key);
+		    	}else{
+		    		return null;
+		    	}
+			},
+		    remove_from_storage: function(storage_type, key){
+		    	if(typeof(Storage)!=='undefined') {
+		    		var storx = (storage_type=='session' ? sessionStorage : localStorage);
+		    		storx.removeItem(key);
+		    	}
+			},
+			is_service_disabled: function(services, app_id){
+				for(var i=0; i<services.length; i++){
+					if (services[i].app_id==app_id){
+						return !services[i].status;
+					}
+				}
+				return false;	//should not happen
+			}			
+			
+		});
+	
+		String.prototype.jw_format = function() {
+			var formatted = this;
+			for (var i = 0; i < arguments.length; i++) {
+				var regexp = new RegExp('\\{' + i + '\\}', 'gi');
+				formatted = formatted.replace(regexp, arguments[i]);
+			}
+			return formatted;
+		};
+	}catch(ex){
+		console.log('JW Ex 75330: '+ex.message);
+	}
+}	//end of jw_initial_code
+
+//load the required fonts according to datax. e.g. dist.
+//for now we load ubuntu for all templates and dists
+function jw_misc_loader(datax){
+	var url = '//fonts.googleapis.com/css?family=Ubuntu:400,700,300';
+	jw_jquery.jw_cached_css(url).done(function(css,textStatus){jw_jquery('head').append('<style>'+css+'</style>');})
+	.fail(function(jqxhr, settings, exception ){console.log('JW Error 10093: Failed to load '+url);});
+	
+	jw_jquery.jw_cached_css('//static.' + tbView.domain + '/tlb/v4/jw_fb206/source/jquery.jw_fancybox.css')
+	.done(function(css,textStatus){jw_jquery('head').append('<style>'+css+'</style>');})
+	.fail(function(jqxhr, settings, exception ){console.log('JW Error 10143: Failed to load fancybox css');});
+}
+
+// load jw_combo_base.js and jw_combo_atomic.js and then start being specific
+function jw_combo_starter(datax){
+	try {
+		if (!jw_jquery){
+			console.log('JW error 64002: jw_jquery does not exist.');
+			return;
+		}
+		
+		jw_initial_code();
+
+		jw_misc_loader(datax);
+		
+		jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_base.js").done(function(script, textStatus) {
+			jw_jquery.jw_cached_script('//www.'+tbView.domain + "/tlb/v4/combox/jw_combo_atomic.js").done(function(script, textStatus) {
+				var tver = datax.template.id;
+				switch (tver) {
+					case 1:
+						jw_side_multi_icons_runner(datax);
+						break;
+					case 2:
+						jw_t2_runner(datax);
+						break;
+					case 3:
+						jw_t3_runner(datax);
+						break;
+					case 4:
+						jw_side_single_icon_runner(datax); 
+						break;
+					case 5:
+						jw_side_single_icon_354_runner(datax); 
+						break;
+					default:
+						console.log('JW Error 84238: invalid tver.');
+						return;
+				}
+			}).fail(function(jqxhr, settings, exception) {
+				console.log('JW Error 10841: Failed to load jw_combo_atomic.js');
+			});
+		}).fail(function(jqxhr, settings, exception) {
+			console.log('JW Error 10011: Failed to load jw_combo_base.js');
+		});
+	} catch (ex) {
+		console.log('JW Ex 67113: ' + ex.message);
+	}
+}

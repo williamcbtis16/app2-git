@@ -1,0 +1,22 @@
+jw_tid='js_1_336_cay';
+jw_token='3349B9F0-0E21-6172-0D72-E515DC64E811';
+tbView.prepare('http://','combo','5');
+
+							function _combo_load5(){
+								try{
+									if (typeof jwInterface != 'undefined'){
+										jwInterface.jw_start_combo(jw_combo_data);
+										return;
+									}
+								}catch(e){}
+								setTimeout(function() {_combo_load5();}, 250);
+							};
+
+							var jw_fp = null;
+							try{jw_fp=JSON.parse ? JSON.parse : JSON.decode;}catch(e){}var jw_combo_data=null;if(jw_fp){jw_combo_data=jw_fp('{"dist":"355","template":{"id":5,"pos":"left","layout":1},"spRootUri":"\/\/jw.experiences.center","token":"3349B9F0-0E21-6172-0D72-E515DC64E811"}');
+setTimeout(
+								function(){
+									if(tbView.verify_load)
+										tbView.verify_load(_combo_load5,'combo',true);
+									}, 
+								100);}
