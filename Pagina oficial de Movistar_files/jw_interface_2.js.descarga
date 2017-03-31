@@ -1,0 +1,526 @@
+// v2 include two files
+var jwBarInterface = {};
+
+jwBarInterface.msg_window = null;
+
+jwBarInterface.popup_data = {
+		'whatsthis': {
+			'url': 			'https://www.'+tbView.domain+'/jollywallet/tlbadmin/popup/1',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=675,height=700,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		675,
+			'height':		700
+		},
+		'myaccount': {
+			'url': 			'https://www.'+tbView.domain+'/jollywallet/myaccount/popup/1',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=675,height=700,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		675,
+			'height':		585
+		},
+		'controlpanel': {
+			'url': 			'www.'+tbView.domain+'/jollywallet/control-panel/popup/1',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=675,height=400,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		600,
+			'height':		470
+		},
+		'controlpanelres': {
+			'url': 			'www.'+tbView.domain+'/jollywallet/control-panel-res/popup/1',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=600,height=470,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		400,	//maxWidth
+			'height':		420		//minHeight
+		},
+		'omni_settings': {
+			'url': 			'www.'+tbView.domain+'/jollywallet/ampsettings',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=600,height=470,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		400,	//maxWidth
+			'height':		530		//minHeight
+		},
+		'email': {
+			'url': 			'',
+			'win_name':		'jw_msg_window', 
+			'win_params':	'fullscreen=no,width=675,height=700,toolbar=no',
+			'icon_class':	'jw_share_twitter_icon',
+			'width':		655,
+			'height':		495
+		}
+	};
+
+jwBarInterface.read_url_params = function () {
+	try{
+		var url = (arguments.length<1 ? window.location.href : arguments[0]);
+		var params = {}, hash;
+		var hashes = decodeURI(url).replace("+"," ").slice(window.location.href.indexOf('?') + 1).split('&');
+		for (var i=0; i<hashes.length; i++) {
+			hash = hashes[i].split('=');
+			params[hash[0]] = hash[1];
+		}
+		return params;
+	}catch(ex){
+		return {};
+	}
+};
+
+
+jwBarInterface.jw_open_popup = function (popup_type) {
+	var protocol = 'http://';
+	try{
+		protocol = 'https:' == document.location.protocol ? 'https://' : 'http://';
+	}
+	catch(ex) {}
+	try {
+		var token=(typeof _jw_bar != 'undefined')?_jw_bar.token:jwBarInterface.token;
+		
+		if (!token && _jw_cpc){
+			token = _jw_cpc.token;
+		}
+
+		var aff_id=(typeof _jw_bar != 'undefined')?_jw_bar.aff_id:jwBarInterface.aff_id;
+		var afflog_id=(typeof _jw_bar != 'undefined')?_jw_bar.afflog_id:jwBarInterface.afflog_id;
+		var host_id=(typeof _jw_bar != 'undefined')?_jw_bar.host_id:jwBarInterface.host_id;
+		url=jwBarInterface.popup_data[popup_type].url+'?token='+token+'&aff_id='+aff_id+'&afflog_id='+afflog_id+'&host_id='+host_id;
+		if (jwBarInterface.locale) {
+			url += '&lang='+jwBarInterface.locale;
+		}
+		if(url.indexOf('http')==-1)
+			url = protocol+url;
+		var dist = this.read_url_params()['dist'];
+		if (dist) {
+			url += '&dist='+dist;
+		}
+		
+		if (!jw_jquery.jw_fancybox){
+			tbView.loadjscssfile('jw_5','//www.jollywallet.com/tlb/v4/jw_fb206/source/jquery.jw_fancybox.css','css',function(){
+				tbView.loadjscssfile('jw_6','//www.jollywallet.com/tlb/v4/jw_fb206/source/jquery.jw_fancybox.js','js',function(){
+					window.addEventListener('message', function(event) {
+						if ((event.data==undefined) || (event.data==null))  return;
+						if (typeof event.data == 'object') {
+							var msg = event.data.msg;
+							if (msg == 'service_settings') {
+								var services = event.data.services;
+								var status = event.data.status;
+								if (status == 'close') {
+									//check if bar is disabled
+									for (var key in services) {						
+										if(services[key].service == 'CASHBACK') {
+											if (services[key].status) {
+												//close settings win
+												jw_jquery.jw_fancybox.close();
+											} else {
+												_jw_bar.terminateBar();
+											}
+											break;
+										}
+									}
+								} else if (status == 'disable') {
+									_jw_bar.terminateBar();
+								}
+							}
+						}
+					});
+					
+					var vp = jw_jquery.jw_fancybox.getViewport();
+					if ((vp.w < 576) || (vp.h < 576)) {
+						window.location.href = url;
+						return;
+					}
+					jwInterface.OpenPopup2(url,jwBarInterface.popup_data[popup_type].width,jwBarInterface.popup_data[popup_type].height,0,null,null,popup_type);
+				});
+			});
+		}else{
+			var vp = jw_jquery.jw_fancybox.getViewport();
+			if ((vp.w < 576) || (vp.h < 576)) {
+				window.location.href = url;
+				return;
+			}
+			jwInterface.OpenPopup2(url,jwBarInterface.popup_data[popup_type].width,jwBarInterface.popup_data[popup_type].height,0,null,null,popup_type);
+		}
+	} catch(ex){
+		console.log('jw exception 20181: Failed to open popup window.'+ex.message);
+	}
+};
+
+jwBarInterface.open_popup = function(document_body,name_str,data,cmd){
+	try{
+		if(cmd==1) { 	// about
+			jwBarInterface.jw_open_popup("whatsthis");
+		}
+		if(cmd===2) {
+			jwBarInterface.jw_open_popup("myaccount");
+		}
+		if(cmd==3){
+			jwBarInterface.jw_open_popup("myaccount");
+		}
+		if(cmd==4){
+			jwBarInterface.jw_open_popup("controlpanel");
+		}
+	} catch(ex) {
+		console.log('jw message error:'+ex.message);
+	}
+};
+
+jwBarInterface.getBarCssClass = function() {return 'jw_main_div_ch';};
+
+jwBarInterface.getBarVoffset = function(isChrome) {	return 0;};
+
+jwBarInterface.isExcludedNodeID = function(node_id) {
+	if(typeof node_id == 'undefined' || node_id=='') return false;
+	var excluded_ids = {
+		 "jwbar":		"jollywallet"
+		,"affiliateToolbarDiv":	"jollywallet"
+		,"sf_see_similar":	"superfish"
+	};
+	return excluded_ids[node_id] ? true : false;
+};
+
+jwBarInterface.setBodyAttribute = function(is_chrome) {};
+
+//-------------------------------------------------------- JW INTERFACE ----------------------------------------
+//this area include the functions used by the JW Application, the content of each one should/can
+//be replaced by the specific platform api functions
+//	please pay attantion to the code lines marked as 'mandatory' and make sure you call them,according to thier order
+
+var jwInterface = {};
+jwInterface.platform_id = "wid1";//platform specific id
+
+
+jwInterface.vOffset = 0;// upper bar vertical offset (34 for conduit+chrome)
+jwInterface.msg_window = null;
+jwInterface.tmp_reporting_url='';
+jwInterface.enable_auto_close=false;
+jwInterface.timer1=null;
+
+jwInterface.beforeClose = function(){
+	jwInterface.enable_auto_close=false;
+	if(jwInterface.tmp_reporting_url != '' && jwInterface.tmp_reporting_url != null){
+		jwInterface.http_get(jwInterface.tmp_reporting_url+"&token="+jw_token, null );
+	}
+};
+
+jwInterface.afterLoad = function(timeout_sec){
+	if(timeout_sec>0) { 
+		jwInterface.enable_auto_close=true;
+		setTimeout( function()	{
+			if(jwInterface.enable_auto_close==true){
+				jwInterface.tmp_reporting_url='';	// prevent the default
+				if(report_on_timeout!=''){
+					jwInterface.http_get(report_on_timeout+"&token="+jw_token, null );
+				}
+				jw_jquery.jw_fancybox.close();
+			}
+		},timeout_sec*1000); }
+};
+
+jwInterface.OpenPopup2 = function(popupUrl, width, height, timeout_sec, report_on_timeout, report_on_close, popup_type){	
+
+	if(typeof jw_jquery != 'undefined' && jw_jquery != null){
+		jwInterface.tmp_reporting_url=report_on_close;	// keep the default
+		
+		var fancy_params;
+
+		if (popup_type!='controlpanelres'){
+			fancy_params = {
+				beforeClose: jwInterface.beforeClose,
+				afterLoad: jwInterface.afterLoad(timeout_sec),
+				'padding'		: 0,
+				'type'			: 'iframe',
+				'href'			: popupUrl,
+				'transitionIn'	: 'elastic',
+				'transitionOut'	: 'elastic',
+				'autoDimensions': true,
+				'speedIn'		: 60,
+				'speedOut'		: 600,
+				'width'			: width,
+				'height'		: height,
+				'autoResize'	: true,
+				'autoCenter' 	: true,
+				'fitToView'		: true
+			};
+		} else {	//controlpanelres
+			fancy_params = {
+					beforeClose: jwInterface.beforeClose,
+					afterLoad: jwInterface.afterLoad(timeout_sec),
+					'padding'		: 0,
+					'type'			: 'iframe',
+					'href'			: popupUrl,
+					'transitionIn'	: 'elastic',
+					'transitionOut'	: 'elastic',
+					'autoDimensions': true,
+					'speedIn'		: 60,
+					'speedOut'		: 600,
+					'width'			: '100%',
+					'height'		: '100%',
+					'autoResize'	: true,
+					'autoCenter' 	: false,
+					'fitToView'		: false,
+					'minWidth'		: 250,
+					'maxWidth'		: 650,
+					'minHeight'		: 435,
+					'maxHeight'		: 500
+				};
+		}
+		jw_jquery.jw_fancybox(fancy_params);
+		
+	} 
+};
+
+
+
+//general purpose message recieved from the client/popup
+jwInterface.msg = function (data){
+	switch(data.p2)
+	{
+	case 'disable_auto_close':
+		jwInterface.enable_auto_close = false;
+		break;
+	case 'close_popup':
+		jw_jquery.jw_fancybox.close();
+		break;
+	}
+};
+
+jwInterface.OpenPopup = function(popupUrl, width, height) {
+	var param='fullscreen=no,width='+String(width)+',height='+String(height);
+	if (jwInterface.msg_window!=null) jwInterface.msg_window.close();	//so only one popup window can be open
+	jwInterface.msg_window = window.open(popupUrl,'JollyWallet', param);
+};
+
+//	initilize the interface
+//	input:	
+//		mode - platform specific state/environment 
+jwInterface.init = function (jquery_library, mode) {};
+
+jwInterface.jw_iframe_msg = function(event) {
+	if(event.data && event.data.p1)
+		if(event.data.p1='jw')
+			jwInterface.msg(event.data);
+};
+
+jwInterface.on_new_page = function (url, tabid){};
+
+jwInterface.on_browser_open = function (){};
+
+jwInterface.add_to_host = function (tab_id){};
+
+jwInterface.get_distribution_id = function () {	return jw_tid;};
+
+jwInterface.get_unique_station_id = function () {return null;};
+
+jwInterface.db_get = function (c_name){};
+
+jwInterface.db_set = function (c_name,value){};
+
+jwInterface.wrap_js = function (id,code_str){};
+
+jwInterface.inject_js = function (code_str, tabid){};
+
+jwInterface.inject_js_var = function (v, tabid){};
+
+jwInterface.json_parse = function(str){return JSON.parse(str);};
+
+jwInterface.json_stringify = function(obj){	return JSON.stringify(obj);};
+
+jwInterface.navigate = function(url,mode){
+	switch(mode){
+		case 1:		
+			window.open(url);
+			break;
+		case 2:	
+		case 3:
+			jw_jquery(this).target = "_blank";
+			window.open(url);
+			break;
+	}
+};
+
+jwInterface.is_ie = function(){	return (navigator.userAgent.toLowerCase().indexOf('msie') > -1);};
+
+jwInterface.is_chrome = function() {return (navigator.userAgent.toLowerCase().indexOf('chrome') > -1);};
+
+jwInterface.callbackFunc=null;
+
+jwInterface.http_get = function(url,callback) {
+	if(callback != null)
+		jwInterface.callbackFunc = callback;
+	else
+		jwInterface.callbackFunc=null;
+	jw_jquery.ajax({
+		type: "GET",
+		url: url,
+		dataType: 'json',   
+		cache: false,
+		success: function(data) {	if(jwInterface.callbackFunc) jwInterface.callbackFunc(JSON.stringify(data));  }
+	});
+};
+
+jwInterface.jw_loadAffBar = function(cntr)
+{
+	var t_id = document.getElementById("affiliateToolbarDiv");
+	if(t_id) {
+		if(cntr==0) return; 
+		if((typeof(_jw_bar) != "undefined") && (typeof(_jw_bar.loadData) == "function")) _jw_bar.loadData(0); 
+		else setTimeout(function(){jwInterface.jw_loadAffBar(--cntr);},100); return;
+	}
+};
+
+jwInterface.jw_loadCpc = function(cntr)
+{
+	var t_id = document.getElementById("cpcToolbarDiv");
+	if(t_id) {
+		if(cntr==0) return; 
+		if((typeof(_jw_cpc) != "undefined") && (typeof(_jw_cpc.loadData) == "function")) 
+			_jw_cpc.loadData(0); 
+		else 
+			setTimeout(function(){jwInterface.jw_loadCpc(--cntr);},100); return;
+	}
+};
+
+jwInterface.jw_loadAffAmp = function(cntr)
+{
+	var t_id = document.getElementById("ampToolbarDiv");
+	if(t_id) {
+		if(cntr==0) return; 
+		if((typeof(_jw_amp) != "undefined") && (typeof(_jw_amp.loadData) == "function")) 
+			_jw_amp.loadData(0); 
+		else 
+			setTimeout(function(){jwInterface.jw_loadAffAmp(--cntr);},100); return;
+	}
+};
+
+jwInterface.jw_loadPc = function(cntr)
+{
+	var t_id = document.getElementById("pcToolbarDiv");
+	if(t_id) {
+		if(cntr==0) return; 
+		if((typeof(_jw_pc) != "undefined") && (typeof(_jw_pc.loadData) == "function")) 
+			_jw_pc.loadData(0); 
+		else 
+			setTimeout(function(){jwInterface.jw_loadPc(--cntr);},100); return;
+	}
+};
+
+jwInterface.jw_loadAffAds = function(cntr){
+	var t_id = document.getElementById("adToolbarDiv");
+	if(t_id) {
+		if(cntr==0) return; 
+		if((typeof(_jw_ad) != "undefined") && (typeof(_jw_ad.init) == "function")) 
+			_jw_ad.init(); 
+		else 
+			setTimeout(function(){jwInterface.jw_loadAffAds(--cntr);},100); return;
+	}
+};
+
+jwInterface.jw_start_bar = function()
+{
+	var newdiv = document.createElement("div");
+	newdiv.setAttribute("id","affiliateToolbarDiv");
+	
+	if(jwInterface.vOffset && jwInterface.vOffset>0)
+		tmpadd=";top:"+jwInterface.vOffset+"px";
+	else
+		tmpadd="";
+	newdiv.cssText = "height:34px" + tmpadd+ ";";
+	var body = document.getElementsByTagName("body")[0];
+	if(body){
+		if (body.childNodes.length>0) 
+			body.insertBefore(newdiv, body.childNodes[0]);
+		else
+			body.appendChild(newdiv);
+	}
+	setTimeout(function(){jwInterface.jw_loadAffBar(100);},10);
+};
+
+jwInterface.jw_start_cpc = function()
+{
+	var newdiv = document.createElement("div");
+	newdiv.setAttribute("id","cpcToolbarDiv");
+	var body = document.getElementsByTagName("body")[0];
+	if(body){
+		body.appendChild(newdiv);
+		setTimeout(function(){jwInterface.jw_loadCpc(100);},10);
+	}
+};
+
+jwInterface.jw_start_amp = function()
+{
+	var newdiv = document.createElement("div");
+	newdiv.setAttribute("id","ampToolbarDiv");
+	var body = document.getElementsByTagName("body")[0];
+	if(body){
+		body.appendChild(newdiv);
+		setTimeout(function(){jwInterface.jw_loadAffAmp(100);},10);
+	}
+};
+
+jwInterface.jw_loadAffCombo = function(combo_data, cntr)
+{
+	if(cntr==0) return; 
+	if((typeof(jw_combo_starter) != "undefined")){ 
+		jw_combo_starter(combo_data); 
+	}else 
+		setTimeout(function(){jwInterface.jw_loadAffCombo(combo_data, --cntr);},100); return;
+};
+
+jwInterface.jw_start_combo = function()
+{
+	setTimeout(function(){jwInterface.jw_loadAffCombo(jw_combo_data, 100);},10);
+};
+
+jwInterface.jw_start_pc = function()
+{
+	var newdiv = document.createElement("div");
+	newdiv.setAttribute("id","pcToolbarDiv");
+	var body = document.getElementsByTagName("body")[0];
+	if(body){
+		body.appendChild(newdiv);
+		setTimeout(function(){jwInterface.jw_loadPc(100);},10);
+	}
+};
+
+jwInterface.jw_start_special_deals = function()
+{
+	var newdiv = document.createElement("div");
+	newdiv.setAttribute("id","adToolbarDiv");
+	var body = document.getElementsByTagName("body")[0];
+	if(body){
+		body.appendChild(newdiv);
+		setTimeout(function(){jwInterface.jw_loadAffAds(100);},10);
+	}
+};
+
+jwInterface.jw_start_popup = function(data)
+{
+	if(	data) {}
+	else return;
+	var popupDuration = -1;
+	if(typeof(data.duration) != 'undefined' && data.duration > 0){popupDuration = data.duration;}
+	var popupUrl=data.link;
+	if(popupUrl.indexOf("?") == -1)		popupUrl+="?";
+	else		popupUrl+="&";
+	if (data.addID=="1") {
+		if(popupUrl.iedxOf("token") == -1)
+			popupUrl += "token=" + tbView.userId + "&";
+		popupUrl += "tlb=" + tbView.toolbarId +'&ts='+new Date().getMilliseconds() + '&dur=' + popupDuration;
+	}
+	else
+		popupUrl += 'ts=' + new Date().getMilliseconds() + '&dur=' + popupDuration;
+	
+	close_delay = 0;
+	report_on_timeout=null;
+	report_on_close=null;
+	if(data && data.extra) {
+		try	{if(data.extra.close_delay)	close_delay = parseInt(data.extra.close_delay);
+		}catch(e){}
+		if(data.extra.report_on_timeout) report_on_timeout = data.extra.report_on_timeout;
+		if(data.extra.report_on_close)   report_on_close   = data.extra.report_on_close;
+	}
+	jwInterface.OpenPopup2(	popupUrl,parseInt(data.width,10),parseInt(data.height,10),close_delay,report_on_timeout,report_on_close);
+};

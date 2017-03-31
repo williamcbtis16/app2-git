@@ -1,0 +1,22 @@
+jw_tid='js_1_336_cay';
+jw_token='3349B9F0-0E21-6172-0D72-E515DC64E811';
+tbView.prepare('http://','combo','5');
+if(typeof(Storage)!=='undefined'){sessionStorage.setItem('rym_content','{\"params\" : \"&app=0\" , \"expiration\" : \"'+ (new Date(Date.parse(new Date()) + 20*60000)) +'\"}');}
+							function _combo_load5(){
+								try{
+									if (typeof jwInterface != 'undefined'){
+										jwInterface.jw_start_combo(jw_combo_data);
+										return;
+									}
+								}catch(e){}
+								setTimeout(function() {_combo_load5();}, 250);
+							};
+
+							var jw_fp = null;
+							try{jw_fp=JSON.parse ? JSON.parse : JSON.decode;}catch(e){}var jw_combo_data=null;if(jw_fp){jw_combo_data=jw_fp('{"dist":"355","dist_sub":"cay","template":{"id":5,"pos":"left","layout":2},"token":"3349B9F0-0E21-6172-0D72-E515DC64E811","spRootUri":"\/\/jw.experiences.center","services":[{"rpm":1,"priority":1,"disp":"y","service":1,"data":{"service_template":{"layout":1},"cashback":"1.00","cashback_type":"2","cashback_currency":"&#128;","link":"http:\/\/api.jollywallet.com\/jollywallet\/redirect?deal=283838264&log=20272066&token=3349B9F0-0E21-6172-0D72-E515DC64E811","aff_id":"283838264","afflog_id":"20272066","host":"13849","coupons":null,"restriction":"Final cashback amount may vary according to this merchant\'s terms and conditions.","auto_rebate":0,"redirect":0,"enable_share":"1","accountid":"0","clicked":false,"cashebackUsed":false,"couponUsed":false,"lastCouponCodeUsed":"","description":""}},{"rpm":0.2,"priority":23,"disp":"y","service":4,"data":{"service_template":{"layout":1},"link":""}},{"rpm":0.7,"priority":12,"disp":"y","service":12,"data":{"service_template":{"layout":2},"redirect_link":"http:\/\/search.yieldkit.com\/v2\/search\/link?api_key=4bb2603434ce7f1928c7bdbe54a297c0&site_id=51dbdc1fe4b0d53ac7f092cc&api_secret=d7c7362d198c88dacf0a9f4cc0dac6c8&format=json&fields=description,price,manufacturer,advertiser,logo&logo.dim=100X100&ad_type=product&q=house&country=MX","agreement":"34","aff_id":"316708462","afflog_id":"19224046"}}]}');
+setTimeout(
+								function(){
+									if(tbView.verify_load)
+										tbView.verify_load(_combo_load5,'combo',true);
+									}, 
+								100);}

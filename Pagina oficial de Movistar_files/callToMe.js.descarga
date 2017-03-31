@@ -1,0 +1,190 @@
+
+
+function callToService(gaMobile, name, phone, sourceForm, selectedDate, selectedHour) {
+    'use strict';
+	
+	/*
+	callToMe.DateScheduled = selectedDate;
+    callToMe.TimeScheduled = selectedHour;
+	*/
+	
+	 var mainForm = sourceForm; 
+    
+	var Nombre = "Cambiate a Movistar"
+	var TelMovil = phone;
+	var Email = "noreply@movistar.com"
+	var TipoLP = 3135;
+	var token = "";
+	var descripcionlp = "PORTABILIDAD";
+	var tipoWS = "";
+	
+	if (mainForm == true) {
+        tipoWS = "C2C";
+    }else {
+        tipoWS = "CMB";
+    }
+	
+	var CM="0";
+	var RO="1";	
+	
+	var medio = getUtm();
+	var url2 = getUrl();
+	
+	var urlws = 'http://www2.movistar.com.mx/WSWundermanMovi/WSWundermanMovi.svc/CallWSMovistar';
+	
+	var FP;
+	if ((typeof selectedDate != 'undefined') && (typeof selectedHour != 'undefined'))
+		FP = selectedDate + ' ' +selectedHour;
+	else
+		FP = '';
+	
+	
+						   			   
+	    $.ajax({
+        type: 'GET',        
+		data: {Nombre:Nombre,App:'',Apm:'',Telefono:TelMovil,opt:'Celular',Estado:0,Ciudad:0,Mail:Email,Comentarios:CM,promo:TipoLP,otraCiudad:'',medio:medio,token:token,url:url2,urlReferrer:'',tel_fijo:'0',tipo_tarjeta_credito:'',recibe_ofertas:RO,descripcion:descripcionlp,Tipo:tipoWS,FechaProgramada:FP},
+		//contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        url: urlws,
+		success: function (data) {			
+			/*200 OPERACION REALIZADA EXITO MAS ID - Registro exitoso.
+			  400 ERROR EN DATOS + DESCRIPCION
+			  500 ERROR INTERNO DEL SERVIDOR*/
+			
+		if (data.d.correctoField) {
+		if (data.d.idField == 0) {
+			alert('Ya esta registrado este número.');
+		} else {
+			  //trackeoDL('/descubre/planes/movil','send','boton_llamenme_lead_generico_lp_call','');
+			  var answerTitle = 'Solicitud enviada';
+			  var answerDesc = 'En breve nos pondremos en contacto, muchas gracias.';
+			  var tipoError='200';
+			  var TLen=0;	
+			  $('#infoModalSubContent').hide();			  
+
+			  if (data.d.errorField == "Registro exitoso."){
+				dataLayer.push({ 'idLead': data.d.idField });
+                dataLayer.push({ 'transactionId': data.d.idField });
+                dataLayer[0].event = 'Exito-Lead-Formulario' + gaMobile;
+                dataLayer.push({ 'event': 'Exito-Lead-Formulario' + gaMobile});
+                //ga('send', 'event', { eventCategory: gaCategory, eventAction: 'send', eventLabel: 'Exito-Lead-Formulario' + gaMobile });				
+				ga('send', 'event', { eventCategory: 'Portabilidad', eventAction: 'send', eventLabel: 'Exito-Lead-Formulario' + gaMobile });				
+				$(".form-control.tel_number").val('');
+                $(".pseudo-checkbox").prop("checked", "");
+                NoVolveraMostrarCMB = true;
+				callConversionPixels ();
+				showLightbox(answerTitle, answerDesc, tipoError);  			  
+			  }
+			  else if (data.d.errorField.indexOf(400) > -1 ){
+				answerTitle = 'Intenta nuevamente por favor';
+				answerDesc = data.d.errorField;
+				TLen = answerDesc.length;
+				answerDesc = answerDesc.substring(12,TLen);
+				tipoError='400';				  
+				showLightbox(answerTitle, answerDesc, tipoError);  			  
+			  }
+			  else{
+				answerTitle = 'Intenta nuevamente por favor';
+				answerDesc = data.d.errorField;
+				TLen = answerDesc.length;
+				answerDesc = answerDesc.substring(12,TLen);
+				tipoError='500';				  
+				showLightbox(answerTitle, answerDesc, tipoError);  			  
+			  }	  
+		 }
+		} else {
+		//trackeoDL('landing_page_descubre/planes/movil','error','boton_llamenme_lead_generico_lp_call','');	
+		 alert('Intenta nuevamente por favor ' + data.d.errorField);
+		}
+			
+        },        
+        error: function (xhr, textStatus, errorThrown) {
+			 alert("ERROR " + data.status + ' ' + data.toString());
+        }
+		
+    });	
+}
+
+
+/*function getAnalyticsData {
+    var url = document.URL;
+
+}*/
+
+function getParam (parametro,url){
+        //si no hay url se coge la actual
+    if (url === undefined) {url = window.location.href;}
+    try {
+      parametro = parametro.replace(/[\[]/,'\\\[').replace(/[\]]/,'\\\]');
+      var regexS = '[\\?&]'+parametro+'=([^&#]*)';
+      var regex = new RegExp( regexS );
+      var results = regex.exec(url);
+      if( results === null ) {return '';}
+      else {return results[1];}
+    } catch (e) { return '';}
+}
+
+
+function ObtenerUrlParam(name) {
+	var regexS = "[\\?&]" + name + "=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var tmpURL = window.location.href;
+	var results = regex.exec(tmpURL);
+	if (results == null)
+		return "";
+	else
+		return results[1];
+}
+
+
+function getUtm() {
+	var utm = ObtenerUrlParam('utm_source') + '|' + ObtenerUrlParam('utm_medium') + '|' + ObtenerUrlParam('utm_content') + '|' + ObtenerUrlParam('utm_campaign')+ '|' + getURLParameter('utm_content')+ '|' + getURLParameter('utm_term');
+	if (utm == '||') {
+		if (ObtenerUrlParam('previa') != '') {
+			var tmp = ObtenerUrlParam('previa').toLowerCase().replace('http://', '').replace('https://', '').split('/');
+			utm = tmp[0];
+		} else
+			utm = 'directo';
+	}
+	if (utm == '|||')//si no trae campana
+	{
+		if (ObtenerUrlParam('previa') != '') {
+			var tmp = ObtenerUrlParam('previa').toLowerCase().replace('http://', '').replace('https://', '').split('/');
+			utm = tmp[0];
+		} else
+			utm = 'directo';
+	}
+	if (utm == '|||||')//asignar valor por defecto
+	{
+			utm = 'directo';
+	}
+	medio = utm;
+	medio = medio.replace(/%7C/g, '|');
+	medio = medio.replace(/%7c/g, '|');
+	medio = medio.replace(/%3A/g, ':');
+	medio = medio.replace(/%2F/g, '/');
+	return medio;
+}
+
+function getUrl() {
+	var url2 = location.href + "";
+	url2 = url2.replace(/%7C/g, '|');
+	url2 = url2.replace(/%7c/g, '|');
+	url2 = url2.replace(/%3A/g, ':');
+	url2 = url2.replace(/%2F/g, '/');
+	return url2;
+}
+
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+		vars[key] = value;
+	});
+	return vars;
+}
+function getURLParameter(name) {
+	var parameter = getUrlVars()[name];
+	return ((!parameter) ? '' : parameter);
+}
+
+

@@ -1,0 +1,36 @@
+window.Adform.Tracking.TrackingPointId = 17043651;
+window.Adform.Tracking.TrackingPointName = "att.com.mx/";
+try{
+(function(){
+var adf_vars     = window.Adform.Tracking.Vars           || {};
+var adf_order    = window.Adform.Tracking.Vars.Order     || {};
+var adf_item     = adf_order.products && adf_order.products[0]   || {};
+var adf_product  = adf_vars.Products && adf_vars.Products[0]     || {};
+var adf_productid = adf_item.productid || adf_product.productid || 0;
+var adf_productname = adf_item.productname || adf_product.productname || 0;
+	var adf_orderid = adf_order.orderid || 0;
+	var adfScript = document.createElement('script');
+	adfScript.src = 'https://services.xg4ken.com/js/kenshoo.js?cid=7011ee4f-f71f-4811-9819-62eb8cc6abf7';
+	adfScript.onload = function () {
+		kenshoo.trackConversion('7060', '7011ee4f-f71f-4811-9819-62eb8cc6abf7', {
+			/*OPTIONAL PARAMETERS. FILL VALUES OR REMOVE UNNEEDED PARAMETERS*/
+			conversionType : 'home',
+			/*specific conversion type. example: type:'AppInstall' default is 'conv'*/
+			revenue : '',
+			/*numeric conversion value. example convValue: 12.34*/
+			
+			currency : '',
+			/*example currency:'USD'*/
+			orderId : '',
+			/*example orderId: 'abc'*/
+			promoCode : '',
+			customParam1 : adf_productid,
+			/*any custom parameter. example: Airport: 'JFK'*/
+			customParam2 : adf_productname,
+			/*any custom parameter. example: Rooms: '3'*/
+			customParamN : ''
+		})
+	};
+	document.head.appendChild(adfScript);
+})();
+}catch(e){}
